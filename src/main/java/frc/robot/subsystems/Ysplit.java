@@ -16,7 +16,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-public class Elevator extends SubsystemBase {
+public class Ysplit extends SubsystemBase {
 
   @RequiredArgsConstructor
   @Getter
@@ -46,8 +46,8 @@ public class Elevator extends SubsystemBase {
   private SimpleMotorFeedforward ff = new SimpleMotorFeedforward(0, 0);
   private double output = 0;
 
-  /** Creates a new ComplexSubsystem. */
-  public Elevator() {
+  /** Creates a new Ysplit. */
+  public Ysplit() {
 
   }
 

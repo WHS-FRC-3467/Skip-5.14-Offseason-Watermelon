@@ -12,7 +12,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-public class IntakeRollers extends SubsystemBase {
+public class IntakeJoint extends SubsystemBase {
 
   @RequiredArgsConstructor
   @Getter
@@ -32,7 +32,7 @@ public class IntakeRollers extends SubsystemBase {
   private State state = State.OFF;
 
   /** Creates a new SimpleSubsystem. */
-  public IntakeRollers() {
+  public IntakeJoint() {
 
   }
 

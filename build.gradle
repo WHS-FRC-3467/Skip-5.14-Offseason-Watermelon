@@ -100,3 +100,8 @@ wpi.java.configureTestTasks(test)
 tasks.withType(JavaCompile) {
     options.compilerArgs.add '-XDstringConcat=inline'
 }
+
+//don’t show warning about using Pheonix 5 stuff still
+tasks.withType(JavaCompile) {
+    options.compilerArgs.add '-Xlint:-deprecation,-removal'
+}
