@@ -6,66 +6,96 @@ package frc.robot.subsystems;
 
 import java.util.function.DoubleSupplier;
 
+import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
+import com.ctre.phoenix6.controls.NeutralOut;
+import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.hardware.TalonFX;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import frc.robot.Constants.FlywheelConstants;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 public class Flywheel extends SubsystemBase {
 
-  @RequiredArgsConstructor
-  @Getter
-  public enum State {
-    HOME(() -> 0.0),
-    OUT(() -> 90.0);
+    @RequiredArgsConstructor
+    @Getter
+    public enum State {
+        OFF     (()-> 0.0),
+        PASSTHROUGH    (()-> 10.0), // Poop & Scoot
+        AMP     (()-> 40.0), 
+        SUBWOOFER(()-> 27.0),
+        SHOOT   (()-> 75.0), // Default
+        FEED    (()-> 28.0),
+        REVERSE (()-> -20), // Hopefully never have to use this irl
+        AIMING  (()-> 75.0); // Robotstate to be created
 
-    private final DoubleSupplier outputSupplier;
+        private final DoubleSupplier velocitySupplier;
 
-    private double getStateOutput() {
-      return outputSupplier.getAsDouble();
-    }
-  }
-
-  @Getter
-  @Setter
-  private State state = State.HOME;
-
-  private final double upperLimitDegrees = 180;
-  private final double lowerLimitDegrees = 0;
-  private final double maxVelocity = 1;
-  private final double maxAcceleration = 1;
-  private ProfiledPIDController pidController = new ProfiledPIDController(0, 0, 0,
-      new TrapezoidProfile.Constraints(maxVelocity, maxAcceleration));
-  private double goalAngle;
-  private double currentAngle;
-  private SimpleMotorFeedforward ff = new SimpleMotorFeedforward(0, 0);
-  private double output = 0;
-
-  /** Creates a new Flywheel. */
-  public Flywheel() {
-
-  }
-
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-    goalAngle = MathUtil.clamp(state.getStateOutput(), lowerLimitDegrees, upperLimitDegrees);
-
-    if (state == State.HOME && pidController.atGoal()) {
-      // motor.setControl(Neutral)
-    } else {
-      output = pidController.calculate(currentAngle, goalAngle) + ff.calculate(0, 0);
-      // motor.setControl(output);
+        private double getStateOutput() {
+            return velocitySupplier.getAsDouble();
+        }
     }
 
-  }
+    @Getter
+    @Setter
+    private State state = State.OFF;
 
-  public Command setStateCommand(State state) {
-    return runOnce(() -> this.state = state);
-  }
+      // Initialize motor controllers
+    TalonFX m_flywheel = new TalonFX(FlywheelConstants.ID_Flywheel); 
+
+    private final double speedMax = 100.0;
+    private final double speedMin = 0.0;
+    private final double maxVelocity = 1;
+    private final double maxAcceleration = 1;
+    
+    final VelocityVoltage m_request = new VelocityVoltage(0).withSlot(0);
+
+    private double goalSpeed;
+    private double currentAngle;
+    private SimpleMotorFeedforward ff = new SimpleMotorFeedforward(0, 0);
+    private double output = 0;
+
+    NeutralOut m_neutralOut = new NeutralOut();
+
+
+    /** Creates a new Flywheel. */
+    public Flywheel() {
+        m_flywheel.getConfigurator().apply(FlywheelConstants.shooterMotorConfig(m_flywheel.getDeviceID()));
+    }
+
+    @Override
+    public void periodic() {
+      
+        displayInfo(true);
+
+        if (state == State.OFF) {
+            m_flywheel.setControl(m_neutralOut);
+        } else {
+            goalSpeed = MathUtil.clamp(state.getStateOutput(), speedMin, speedMax);  
+            // create a velocity closed-loop request, voltage output, slot 0 configs
+            m_flywheel.setControl(m_request.withVelocity(goalSpeed).withFeedForward(0.5));
+
+    }
+
+    public Command setStateCommand(State state) {
+        return runOnce(() -> this.state = state);
+    }
+
+    public void displayInfo(boolean debug) {
+        if (debug) {
+            //SmartDashboard.putBoolean("Shooter at speed", atGoal());
+            SmartDashboard.putString("Flywheel state", getState().toString());
+            SmartDashboard.putNumber("Flywheel Setpoint", state.getStateOutput());
+            SmartDashboard.putNumber("Flywheel Current draw", m_flywheel.getSupplyCurrent().getValueAsDouble());
+        }
+    }
 }
