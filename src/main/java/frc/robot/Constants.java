@@ -161,7 +161,9 @@ public class Constants {
                 m_configuration.CurrentLimits.SupplyTimeThreshold = 0.5; 
                 m_configuration.CurrentLimits.SupplyCurrentLimitEnable = true; 
 
-                
+                m_configuration.Slot0.kP = 1;
+                m_configuration.Slot0.kI = 0;
+                m_configuration.Slot0.kD = 0;
     
     
                 return m_configuration; 

@@ -3,7 +3,6 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import java.util.function.DoubleSupplier;
-import java.util.spi.CurrencyNameProvider;
 
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.NeutralOut;
@@ -47,20 +46,23 @@ public class Climber extends SubsystemBase{
   @Setter
   private State state = State.STOW;
 
-  private final double upperLimitDegrees = 180;
-  private final double lowerLimitDegrees = 0;
+
   private final double maxVelocity = 1;
   private final double maxAcceleration = 1;
-  private ProfiledPIDController pidController = new ProfiledPIDController(10, 0, 1,
+  private ProfiledPIDController pidController = new ProfiledPIDController(1, 0, 0,
       new TrapezoidProfile.Constraints(maxVelocity, maxAcceleration));
-  private double goalAngle;
   private double currentAngle;
   private SimpleMotorFeedforward ff = new SimpleMotorFeedforward(0, 0);
-  private double output = 0;
-  private double climberSetpoint;
+  private double climberStowed = 0.0;
+  private double climberSetpoint = 0.4;
+  private double climberMaxExtension = 0.48;
+  private double climberPull = 0.02;
+  private double rotationsPerUnitDistance = 8.0 / (Units.inchesToMeters(0.655) * Math.PI);
+  
+
     
     TalonFX m_climberLeaderMotor = new TalonFX(ClimberConstants.ID_ClimberLeader);
-    TalonFX m_climberfollowerMotor = new TalonFX(ClimberConstants.ID_ClimberFollower);
+    TalonFX m_climberFollowerMotor = new TalonFX(ClimberConstants.ID_ClimberFollower);
     public Climber() {
 
     }
@@ -68,9 +70,9 @@ public class Climber extends SubsystemBase{
     public void periodic() {
       displayInfo(true);
         
-      goalAngle = MathUtil.clamp(state.getStateOutput(), lowerLimitDegrees, upperLimitDegrees);
+      climberSetpoint = MathUtil.clamp(state.getStateOutput(), climberStowed, climberMaxExtension);
       if (state == State.STOW && pidController.atGoal()) {
-        
+
       }
 
     }
