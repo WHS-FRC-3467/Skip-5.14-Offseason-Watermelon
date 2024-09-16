@@ -16,7 +16,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-public class Ysplit extends SubsystemBase {
+public class YSplitRollers extends SubsystemBase {
 
   @RequiredArgsConstructor
   @Getter
@@ -47,7 +47,7 @@ public class Ysplit extends SubsystemBase {
   private double output = 0;
 
   /** Creates a new Ysplit. */
-  public Ysplit() {
+  public YSplitRollers() {
 
   }
 

@@ -16,7 +16,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-public class SimpleSubsystem extends SubsystemBase {
+public class ClimberJoint extends SubsystemBase {
 
   @RequiredArgsConstructor
   @Getter
@@ -38,7 +38,7 @@ public class SimpleSubsystem extends SubsystemBase {
   private final NeutralOut m_brake = new NeutralOut();
 
   /** Creates a new SimpleSubsystem. */
-  public SimpleSubsystem() {
+  public ClimberJoint() {
     m_motor.getConfigurator().apply(Constants.ExampleSubsystemConstants.motorConfig());
 
   }

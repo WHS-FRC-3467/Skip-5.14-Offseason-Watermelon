@@ -16,7 +16,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-public class ShooterPivot extends SubsystemBase {
+public class ShooterJoint extends SubsystemBase {
 
   @RequiredArgsConstructor
   @Getter
@@ -47,7 +47,7 @@ public class ShooterPivot extends SubsystemBase {
   private double output = 0;
 
   /** Creates a new ComplexSubsystem. */
-  public ShooterPivot() {
+  public ShooterJoint() {
 
   }
 

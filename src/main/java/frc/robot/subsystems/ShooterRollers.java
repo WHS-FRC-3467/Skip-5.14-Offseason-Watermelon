@@ -24,7 +24,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-public class Flywheel extends SubsystemBase {
+public class ShooterRollers extends SubsystemBase {
 
     @RequiredArgsConstructor
     @Getter
@@ -68,7 +68,7 @@ public class Flywheel extends SubsystemBase {
 
 
     /** Creates a new Flywheel. */
-    public Flywheel() {
+    public ShooterRollers() {
         m_flywheel.getConfigurator().apply(FlywheelConstants.shooterMotorConfig(m_flywheel.getDeviceID()));
     }
 
