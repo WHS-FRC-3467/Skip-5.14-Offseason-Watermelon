@@ -11,7 +11,14 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 /** Add your docs here. */
 public class Constants {
 
+    public static final Mode currentMode = Mode.REAL;
 
+    public static enum Mode {
+        REAL,
+        SIM,
+        REPLAY
+    }
+    
     public static final class ExampleCTREMotorConfig { 
         public static final int ID_Motor = 0;
 

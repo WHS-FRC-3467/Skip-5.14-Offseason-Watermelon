@@ -15,6 +15,9 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.SimpleSubsystem;
+import frc.robot.subsystems.IntakeRollers.IntakeRollers;
+import frc.robot.subsystems.IntakeRollers.IntakeRollersIOSim;
+import frc.robot.subsystems.IntakeRollers.IntakeRollersIOTalonFX;
 
 public class RobotContainer {
   private double MaxSpeed = TunerConstants.kSpeedAt12VoltsMps; // kSpeedAt12VoltsMps desired top speed
@@ -24,7 +27,7 @@ public class RobotContainer {
   private final CommandXboxController joystick = new CommandXboxController(0); // My joystick
   public final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
 
-  public final SimpleSubsystem simpleSubsystem = new SimpleSubsystem();
+  public final IntakeRollers instance;
 
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
       .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
@@ -69,9 +72,22 @@ public class RobotContainer {
     joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
   }
 
-  public RobotContainer() {
-    configureBindings();
-  }
+    public RobotContainer() {
+        switch (Constants.currentMode) {
+            case REAL:
+                instance = new IntakeRollers(new IntakeRollersIOTalonFX());
+                // Now do that for the other subsystems
+                break;
+            case SIM:
+                instance = new IntakeRollers(new IntakeRollersIOSim());
+                break;
+            default:
+                instance = new IntakeRollers(new IntakeRollersIOTalonFX());
+                break;
+        };
+
+        configureBindings();
+    }
 
   public Command getAutonomousCommand() {
     /* First put the drivetrain into auto run mode, then run the auto */

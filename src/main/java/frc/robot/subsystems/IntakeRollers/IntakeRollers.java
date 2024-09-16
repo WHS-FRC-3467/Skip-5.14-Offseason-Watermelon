@@ -2,14 +2,19 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems;
+package frc.robot.subsystems.IntakeRollers;
 
-import com.ctre.phoenix6.controls.Follower;
+import org.littletonrobotics.junction.Logger;
+
+import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.IntakeRollerConstants;
 
 import lombok.Getter;
@@ -21,6 +26,9 @@ public class IntakeRollers extends SubsystemBase {
 
     /** Intake subsystem singleton. For superstructure. */
     private static IntakeRollers instance = null;
+
+    private final IntakeRollersIO io;
+    private final IntakeRollersIOInputsAutoLogged inputs = new IntakeRollersIOInputsAutoLogged();
 
     @RequiredArgsConstructor
     @Getter
@@ -52,20 +60,51 @@ public class IntakeRollers extends SubsystemBase {
     */
     public static IntakeRollers getInstance() {
         if (instance == null) {
-            instance = new IntakeRollers();
+            switch (Constants.currentMode) {
+                case REAL:
+                    instance = new IntakeRollers(new IntakeRollersIOTalonFX());
+                    break;
+                case SIM:
+                    instance = new IntakeRollers(new IntakeRollersIOSim());
+                    break;
+                default:
+                    instance = new IntakeRollers(new IntakeRollersIOTalonFX());
+                    break;
+            };
         }
 
         return instance;
     }
 
     /** Creates a new IntakeSubsystem. */
-    public IntakeRollers() {
-        
-        m_roller.getConfigurator().apply(IntakeRollerConstants.motorConfig());
+    public IntakeRollers(IntakeRollersIO io) {
+        this.io = io;
+
+        // We need to establish what mode the software is running on to determine if PID needs to change
+        // There are different PID values and FeedForward values since the physics simulator does not fully match
+        // the real robot
+        switch (Constants.currentMode) {
+            case REAL:
+            case REPLAY:
+                io.configurePID(1.0, 0.0, 0.0);
+                break;
+            case SIM:
+                io.configurePID(0.5, 0.0, 0.0);
+                break;
+            default:
+                break;
+        }
+        // MJW 9/13/2024: We no longer establish the hardware settings in the constants folder
+        // instead the user will define the motor settings inside of the IO layer TalonFx
+        // m_roller.getConfigurator().apply(IntakeRollerConstants.motorConfig());
     }
 
     @Override
     public void periodic() {
+        // This method will be called once per scheduler run
+        io.updateInputs(inputs);  // Goes to the IO layer and updates the variables from Hardware/Sim
+        Logger.processInputs("IntakeRollers", inputs);  //Updates the inputs in the logger
+        
         // This method will be called once per scheduler run
         displayInfo(true);
 
