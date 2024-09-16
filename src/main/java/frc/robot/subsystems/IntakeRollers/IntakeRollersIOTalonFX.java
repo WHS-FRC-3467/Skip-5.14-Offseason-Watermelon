@@ -8,6 +8,7 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
@@ -24,10 +25,19 @@ public class IntakeRollersIOTalonFX implements IntakeRollersIO {
     //private final StatusSignal<Double> followerCurrent = follower.getSupplyCurrent(); //
 
     public IntakeRollersIOTalonFX() {
+        
         var config = new TalonFXConfiguration();
-        config.CurrentLimits.SupplyCurrentLimit = 30.0;
-        config.CurrentLimits.SupplyCurrentLimitEnable = true;
-        config.MotorOutput.NeutralMode = NeutralModeValue.Coast; //Coast || Brake
+        config.CurrentLimits.SupplyCurrentLimit = 20.0;
+        config.CurrentLimits.SupplyCurrentThreshold = 40;
+        config.CurrentLimits.SupplyTimeThreshold = 0.1; 
+        config.CurrentLimits.SupplyCurrentLimitEnable = true; 
+        config.CurrentLimits.StatorCurrentLimit = 120;
+        config.CurrentLimits.StatorCurrentLimitEnable = true; 
+        config.MotorOutput.NeutralMode = NeutralModeValue.Brake; //Coast || Brake
+        config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        config.Voltage.PeakForwardVoltage = 12.0;
+        config.Voltage.PeakReverseVoltage = -12.0; 
+
         leader.getConfigurator().apply(config);
         //follower.getConfigurator().apply(config);
         //follower.setControl(new Follower(leader.getDeviceID(), false));
