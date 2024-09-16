@@ -83,6 +83,7 @@ public class Flywheel extends SubsystemBase {
             goalSpeed = MathUtil.clamp(state.getStateOutput(), speedMin, speedMax);  
             // create a velocity closed-loop request, voltage output, slot 0 configs
             m_flywheel.setControl(m_request.withVelocity(goalSpeed).withFeedForward(0.5));
+        }
 
     }
 
