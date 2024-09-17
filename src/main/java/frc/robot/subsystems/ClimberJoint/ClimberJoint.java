@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.ClimberJoint;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -88,6 +90,7 @@ public class ClimberJoint extends SubsystemBase {
   }
 
   public Command setStateCommand(State state) {
+    Logger.recordOutput("ClimberJoint State", state.toString());
     return startEnd(() -> this.state = state, () -> this.state = State.OFF);
   }
 
