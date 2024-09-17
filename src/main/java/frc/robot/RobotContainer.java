@@ -15,8 +15,17 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.SimpleSubsystem;
+import frc.robot.subsystems.ClimberJoint.ClimberJoint;
+import frc.robot.subsystems.ClimberJoint.ClimberJointIO;
+import frc.robot.subsystems.ClimberJoint.ClimberJointIOSim;
+import frc.robot.subsystems.ClimberJoint.ClimberJointIOTalonFX;
 
 public class RobotContainer {
+
+  //MJW 9/17 Logging/Simulation/IO Layering
+  private final ClimberJoint climberJoint;
+  //MJW 9/17 Logging/Simulation/IO Layering
+  
   private double MaxSpeed = TunerConstants.kSpeedAt12VoltsMps; // kSpeedAt12VoltsMps desired top speed
   private double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
 
@@ -70,6 +79,20 @@ public class RobotContainer {
   }
 
   public RobotContainer() {
+    /* This is to define which IO we are running based on Constants */
+    switch (Constants.currentMode) {
+      case REAL:
+        // Real robot, use hardware
+        climberJoint = new ClimberJoint(new ClimberJointIOTalonFX());
+      break;
+      case SIM:
+        climberJoint = new ClimberJoint(new ClimberJointIOSim());
+      break;
+      default:
+        // Replayed Robot, Disable IO
+        climberJoint = new ClimberJoint(new ClimberJointIO() {});
+      break;
+    }
     configureBindings();
   }
 
