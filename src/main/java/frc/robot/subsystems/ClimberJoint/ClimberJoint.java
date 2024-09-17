@@ -2,12 +2,13 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems;
+package frc.robot.subsystems.ClimberJoint;
 
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -17,6 +18,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 public class ClimberJoint extends SubsystemBase {
+
+  private final ClimberJointIO io;
+  private final ClimberJointIOInputsAutoLogged inputs = new ClimberJointIOInputsAutoLogged();
+  private final SimpleMotorFeedforward ffModel;
 
   @RequiredArgsConstructor
   @Getter
@@ -38,7 +43,26 @@ public class ClimberJoint extends SubsystemBase {
   private final NeutralOut m_brake = new NeutralOut();
 
   /** Creates a new SimpleSubsystem. */
-  public ClimberJoint() {
+  public ClimberJoint(ClimberJointIO io) {
+    this.io = io;
+    switch (Constants.currentMode) {
+      case REAL:
+        ffModel = new SimpleMotorFeedforward(0.0, 0.0); // Need to find
+        io.configurePID(1.0, 0.0, 0.0);
+        break;
+      case REPLAY:
+        ffModel = new SimpleMotorFeedforward(0.0, 0.0); // Need to find
+        io.configurePID(1.0, 0.0, 0.0);
+        break;
+      case SIM:
+        ffModel = new SimpleMotorFeedforward(0.0, 0.0); // Need to find
+        io.configurePID(0.5, 0.0, 0.0);
+        break;
+      default:
+        ffModel = new SimpleMotorFeedforward(0.0, 0.0); // Need to find
+        break;
+    }
+
     m_motor.getConfigurator().apply(Constants.ExampleSubsystemConstants.motorConfig());
 
   }
@@ -47,6 +71,8 @@ public class ClimberJoint extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
 
+    io.updateInputs(inputs);  // This will update the hardware logged
+
     if (state == State.OFF) {
       m_motor.setControl(m_brake);
     } else {
@@ -54,6 +80,11 @@ public class ClimberJoint extends SubsystemBase {
     }
 
     displayInfo(debug);
+  }
+
+  /* Run Open loop at the specified voltage */
+  public void runVolts(double volts) {
+    io.setVoltage(volts);
   }
 
   public Command setStateCommand(State state) {

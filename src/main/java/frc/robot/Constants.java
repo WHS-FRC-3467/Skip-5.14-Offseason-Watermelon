@@ -5,6 +5,14 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 public class Constants {
+
+    public static final Mode currentMode = Mode.REAL;
+
+    public static enum Mode {
+        REAL,
+        SIM,
+        REPLAY
+    }
     
     public static final class FlywheelConstants {
         public static final int ID_Flywheel = 17; //Made Up For Now
