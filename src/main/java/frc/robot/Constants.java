@@ -6,8 +6,16 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 public class Constants {
     
-    public static final class FlywheelConstants {
-        public static final int ID_Flywheel = 17; //Made Up For Now
+    public static final Mode currentMode = Mode.REAL;
+
+    public static enum Mode {
+        REAL,
+        SIM,
+        REPLAY
+    }
+    
+    public static final class ShooterJointConstants {
+        public static final int ID_SHOOTER_JOINT = 19; //Made Up For Now
         public static final double FlywheelVelocityTolerance = 5.0;
         
         public static TalonFXConfiguration shooterMotorConfig(int deviceID) {
@@ -15,23 +23,26 @@ public class Constants {
     
             m_configuration.MotorOutput.NeutralMode = NeutralModeValue.Coast; 
             m_configuration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive; // Need to test this
-            m_configuration.CurrentLimits.StatorCurrentLimit = 70;
+            m_configuration.Voltage.PeakForwardVoltage = 12.0;
+            m_configuration.Voltage.PeakReverseVoltage = -12.0; 
+            m_configuration.CurrentLimits.StatorCurrentLimit = 60;
             m_configuration.CurrentLimits.StatorCurrentLimitEnable = true;
-            m_configuration.CurrentLimits.SupplyCurrentLimit = 60;
+            m_configuration.CurrentLimits.SupplyCurrentLimit = 30;
             m_configuration.CurrentLimits.SupplyCurrentLimitEnable = true;
-            m_configuration.CurrentLimits.SupplyCurrentThreshold = 80;
+            m_configuration.CurrentLimits.SupplyCurrentThreshold = 85;
             m_configuration.CurrentLimits.SupplyTimeThreshold = 0.1;
     
-                // set up slot 0 gains - for Velocity PID
+                // set up slot 0 gains - for Velocity PID - NOT TESTED
                 m_configuration.Slot0.kS = 0.1;
                 m_configuration.Slot0.kV = 0.125;
                 m_configuration.Slot0.kA = 0.01; // An acceleration of 1 rps/s requires 0.01 V output
-                m_configuration.Slot0.kP = 0.11;
+                m_configuration.Slot0.kP = 2.1;
                 m_configuration.Slot0.kI = 0;
                 m_configuration.Slot0.kD = 0;
     
                 // set Motion Magic settings
                     /* Actual values have yet to be tested */
+                m_configuration.MotionMagic.MotionMagicCruiseVelocity = 8; // Target cruise velocity of 80 rps
                 m_configuration.MotionMagic.MotionMagicAcceleration = 16; // Target acceleration of 16 rps/s
                 m_configuration.MotionMagic.MotionMagicJerk = 160; // Target jerk of 160 rps/s/s
 
