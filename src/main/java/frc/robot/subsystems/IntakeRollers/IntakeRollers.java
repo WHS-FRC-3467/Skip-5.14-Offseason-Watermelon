@@ -34,8 +34,8 @@ public class IntakeRollers extends SubsystemBase {
     @Getter
     public enum State{
 
-        FWD (() -> IntakeRollerConstants.k_INTAKE_FWD_SPEED),
-        REV (() -> IntakeRollerConstants.k_INTAKE_REV_SPEED),
+        FWD (() -> -0.6),
+        REV (() -> 0.3),
         OFF(() -> 0.0);
 
         private final DoubleSupplier outputSupplier;
