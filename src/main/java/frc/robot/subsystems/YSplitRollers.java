@@ -35,7 +35,7 @@ public class YSplitRollers extends SubsystemBase {
   @Setter
   private State state = State.OFF;
 
-  private boolean debug = false;
+  private boolean debug = true;
 
   TalonFX m_roller1 = new TalonFX(Constants.YSplitRollersConstants.ID_YSPLIT_ROLLER1);
   TalonFX m_roller2 = new TalonFX(Constants.YSplitRollersConstants.ID_YSPLIT_ROLLER2);
