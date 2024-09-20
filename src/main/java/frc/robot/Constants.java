@@ -69,13 +69,13 @@ public class Constants {
             m_configuration.MotionMagic.MotionMagicAcceleration = 160;
             m_configuration.MotionMagic.MotionMagicJerk = 1600;
         
-            var slot0Configs = m_configuration.Slot0;
-            slot0Configs.kS = 0.25;
-            slot0Configs.kV = 0.12;
-            slot0Configs.kA = 0.01;
-            slot0Configs.kP = 4.8;
-            slot0Configs.kI = 0;
-            slot0Configs.kD = 0.1; //These values are from the CTR Electronics
+            var slotConfigs = m_configuration.Slot0;
+            slotConfigs.kS = 0.25;
+            slotConfigs.kV = 0.12;
+            slotConfigs.kA = 0.01;
+            slotConfigs.kP = 4.8;
+            slotConfigs.kI = 0;
+            slotConfigs.kD = 0.1; //These values are from the CTR Electronics
             //https://v6.docs.ctr-electronics.com/en/stable/docs/api-reference/device-specific/talonfx/motion-magic.html
 
             return m_configuration;

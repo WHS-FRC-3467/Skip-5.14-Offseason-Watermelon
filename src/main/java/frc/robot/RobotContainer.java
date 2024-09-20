@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.SimpleSubsystem;
 
 public class RobotContainer {
@@ -25,6 +26,7 @@ public class RobotContainer {
   public final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
 
   public final SimpleSubsystem simpleSubsystem = new SimpleSubsystem();
+  public Elevator m_Elevator = null;
 
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
       .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
@@ -67,11 +69,18 @@ public class RobotContainer {
     joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
     joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
     joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+    
+    joystick.back().and(joystick.b()).onTrue(m_Elevator.setStateCommand(Elevator.State.COLLECT));
+    joystick.x().onTrue(m_Elevator.setStateCommand(Elevator.State.AMP));
+    joystick.y().onTrue(m_Elevator.setStateCommand(Elevator.State.TRAP));
   }
 
   public RobotContainer() {
+    m_Elevator = new Elevator();
     configureBindings();
   }
+
+  //Note to self: Subsystems need to be declared in robot container before you can link any states to commands.
 
   public Command getAutonomousCommand() {
     /* First put the drivetrain into auto run mode, then run the auto */

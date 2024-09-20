@@ -26,29 +26,30 @@ import frc.robot.Constants.ElevatorConstants;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.configs.TalonFXConfigurator;
 
 
 public class Elevator extends SubsystemBase {
 
   //This is code from the W8 Library's Elevator subsystem
 
-  @RequiredArgsConstructor
+  @RequiredArgsConstructor //Note to self - find another one
   @Getter
   public enum State { //0 angle is straight horizontal, -20 is on the hardstops
     COLLECT(() -> 0.0, () -> 0.0),
     AMP(() -> 90.0, () -> 90.0),
-    TRAP(() -> 50.0, () -> 50.0),
+    TRAP(() -> 50.0, () -> 50.0);
     // CUSTOM(() -> 5); //I'm not sure if this is needed
 
     private final DoubleSupplier outputSupplierUno;
     private final DoubleSupplier outputSupplierDos; // I believe there are two motors that move the elevator
 
-    private double getStateOutput() {
+    private double getLeftStateOutput() {
       return Units.degreesToRadians(outputSupplierUno.getAsDouble());
     }
-    private double getStateOutput() {
+    private double getRightStateOutput() {
       return Units.degreesToRotations(outputSupplierDos.getAsDouble());
     }
   }
@@ -57,18 +58,18 @@ public class Elevator extends SubsystemBase {
   @Setter
   private State state = State.COLLECT;
 
+  //Initializing motors
+  TalonFX m_ElevatorMotor = new TalonFX(ElevatorConstants.ID_ElevatorLeader);
+  TalonFX m_ElevatorFollowerMotor = new TalonFX(ElevatorConstants.ID_ElevatorFollower);
 
   //Create a on RIO Profile PID Controller, adding constraints to limit max vel and accel 
   private ProfiledPIDController pidController = new ProfiledPIDController(18, 0, 0.2,);
       //new TrapezoidProfile.Constraints(ElevatorConstants.maxVelocity, ElevatorConstants.maxAcceleration));
 
+  //private ElevatorFeedforward ff = new ElevatorFeedforward(m_configuration.slot0Configs.kS().getValueAsDouble(), 0.4, m_configuration.slot0Configs.kV.getValueAsDouble(), m_configuration.slot0Configs.kA.getValueAsDouble());
   private ElevatorFeedforward ff = new ElevatorFeedforward(0.5, 0.4, 2.5, 0.01);
 
- 
   private double output = 0;
-
-  TalonFX m_ElevatorMotor = new TalonFX(ElevatorConstants.ID_ElevatorLeader);
-  TalonFX m_ElevatorFollowerMotor = new TalonFX(ElevatorConstants.ID_ElevatorFollower);
 
   private VoltageOut m_VoltageOutput = new VoltageOut(0.0);
   private NeutralOut m_neutralOut = new NeutralOut();
@@ -86,26 +87,26 @@ public class Elevator extends SubsystemBase {
     m_ElevatorFollowerMotor.getConfigurator().apply(ElevatorConstants.motorConfig());
     m_ElevatorFollowerMotor.setControl(new Follower(ElevatorConstants.ID_ElevatorLeader, true));
 
-    m_encoder.setDutyCycleRange(1.0/1025.0, 1024.0/1025.0); 
+    m_encoder.setDutyCycleRange(1.0/1025.0, 1024.0/1025.0); //Also the distance per rotation (probabbly cicumference) is 4/7 inches per rotation :)
     m_encoder.setDistancePerRotation(2*Math.PI); //Define 1 full rotation to be 2 Pi
-    m_encoder.setPositionOffset(0.50666666); //Encoder offset to make horizontal report 0 deg
+    m_encoder.setPositionOffset(0.50666666); //Encoder offset to make horizontal report 0 deg 
     
 
     pidController.setTolerance(ElevatorConstants.tolerance);
-    pidController.setIZone(100); // TODO: Figure out actual value
 
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    goalAngle = MathUtil.clamp(state.getStateOutput(), ElevatorConstants.lowerLimit, ElevatorConstants.upperLimit);
+    /*goalAngle = MathUtil.clamp(state.getLeftStateOutput(), ElevatorConstants.lowerLimit, ElevatorConstants.upperLimit);
     pidController.setGoal(goalAngle);
+    */
     
     if (state == State.COLLECT && atGoal()) {
       m_ElevatorMotor.setControl(m_neutralOut);
     } else {
-      output = pidController.calculate(m_encoder.getDistance()) + ff.calculate(goalAngle, 0);
+      output = pidController.calculate(m_encoder.getDistance()) + ff.calculate(pidController.getSetpoint().position, pidController.getSetpoint().position);
       m_ElevatorMotor.setControl(m_VoltageOutput.withOutput(output));
     }
 
@@ -115,7 +116,7 @@ public class Elevator extends SubsystemBase {
 
   
   public boolean atGoal() {
-    //return m_debounce.calculate(MathUtil.isNear(goalAngle, m_encoder.getDistance(), ElevatorConstants.tolerance));
+  //return m_debounce.calculate(MathUtil.isNear(goalAngle, m_encoder.getDistance(), ElevatorConstants.tolerance));
     return m_debounce.calculate(pidController.atGoal());
     //return pidController.atGoal();
   }
