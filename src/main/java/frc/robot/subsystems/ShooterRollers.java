@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Constants.FlywheelConstants;
+import frc.robot.Constants.ShooterRollersConstants;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -50,7 +50,7 @@ public class ShooterRollers extends SubsystemBase {
     private State state = State.OFF;
 
       // Initialize motor controllers
-    TalonFX m_flywheel = new TalonFX(FlywheelConstants.ID_Flywheel); 
+    TalonFX m_flywheel = new TalonFX(ShooterRollersConstants.ID_Flywheel); 
 
     private final double speedMax = 100.0;
     private final double speedMin = 0.0;
@@ -69,7 +69,7 @@ public class ShooterRollers extends SubsystemBase {
 
     /** Creates a new Flywheel. */
     public ShooterRollers() {
-        m_flywheel.getConfigurator().apply(FlywheelConstants.shooterMotorConfig(m_flywheel.getDeviceID()));
+        // m_flywheel.getConfigurator().apply(ShooterRollersConstants.shooterMotorConfig(m_flywheel.getDeviceID()));
     }
 
     @Override

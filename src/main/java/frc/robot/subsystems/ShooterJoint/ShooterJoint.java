@@ -24,41 +24,45 @@ import frc.robot.subsystems.IntakeRollers;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+// Copyright (c) FIRST and other WPILib contributors.
+// Open Source Software; you can modify and/or share it under the terms of
+// the WPILib BSD license file in the root directory of this project.
+
+
+import java.util.function.DoubleSupplier;
+
+import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
+import com.ctre.phoenix6.controls.NeutralOut;
+import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.hardware.TalonFX;
+
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
 public class ShooterJoint extends SubsystemBase {
 
-    /** Intake subsystem singleton. For superstructure. */
-    private static ShooterJoint instance = null;
+  @RequiredArgsConstructor
+  @Getter
+  public enum State {
+    HOME(() -> 0.0),
+    OUT(() -> 90.0);
 
-    private final ShooterJointIO io;
-    private final ShooterJointIOInputsAutoLogged inputs = new ShooterJointIOInputsAutoLogged();
-    private final SimpleMotorFeedforward ffModel;
+    private final DoubleSupplier outputSupplier;
 
-    @RequiredArgsConstructor
-    @Getter
-    public enum State {
-        OFF(() -> 0.0),
-        OUT(() -> 90.0),
-        SUBWOOFER(() -> 20.0),
-        CLIMBCLEARANCE(() -> 20.0),
-        DYNAMIC(() -> 30.0);
-
-        private final DoubleSupplier outputSupplier;
-
-        private double getStateOutput() {
-            return outputSupplier.getAsDouble();
-        }
+    private double getStateOutput() {
+      return outputSupplier.getAsDouble();
     }
+  }
 
-    @Getter
-    @Setter
-    private State state = State.OFF;
-
-    private boolean debug = false;
-
-    TalonFX m_motor = new TalonFX(Constants.ShooterJointConstants.ID_SHOOTER_JOINT);
-    private final DutyCycleOut m_percent = new DutyCycleOut(0);
-    private final NeutralOut m_neutral = new NeutralOut();
+  @Getter
+  @Setter
+  private State state = State.HOME;
 
   private final double upperLimitDegrees = 180;
   private final double lowerLimitDegrees = 0;
@@ -71,92 +75,26 @@ public class ShooterJoint extends SubsystemBase {
   private SimpleMotorFeedforward ff = new SimpleMotorFeedforward(0, 0);
   private double output = 0;
 
-    /**
-    * Creates a new ShooterJoint.
-    *
-    * @return a subsystem instance if there isn't one already.
-    */
-    public static ShooterJoint getInstance() {
-        if (instance == null) {
-            
-            switch (Constants.currentMode) {
-                case REAL:
-                    instance = new ShooterJoint(new ShooterJointIOTalonFX());
-                    break;
-                case SIM:
-                    instance = new ShooterJoint(new ShooterJointIOSim());
-                    break;
-                default:
-                    instance = new ShooterJoint(new ShooterJointIOTalonFX());
-                    break;
-          };
+  /** Creates a new ComplexSubsystem. */
+  public ShooterJoint() {
 
-        }
-
-        return instance;
-    }
-
-    /** Creates a new ComplexSubsystem. */
-    public ShooterJoint(ShooterJointIO io) {
-
-        this.io = io;
-        switch (Constants.currentMode) {
-            case REAL:
-                ffModel = new SimpleMotorFeedforward(0.0, 0.0); // Need to find
-                io.configurePID(1.0, 0.0, 0.0);
-                break;
-            case REPLAY:
-                ffModel = new SimpleMotorFeedforward(0.0, 0.0); // Need to find
-                io.configurePID(1.0, 0.0, 0.0);
-                break;
-            case SIM:
-                ffModel = new SimpleMotorFeedforward(0.0, 0.0); // Need to find
-                io.configurePID(0.5, 0.0, 0.0);
-                break;
-            default:
-                ffModel = new SimpleMotorFeedforward(0.0, 0.0); // Need to find
-                break;
-    }
-
-    m_motor.getConfigurator().apply(Constants.ExampleSubsystemConstants.motorConfig());
   }
 
-    @Override
-    public void periodic() {
+  @Override
+  public void periodic() {
     // This method will be called once per scheduler run
-        io.updateInputs(inputs);  // This will update the hardware logged
-        Logger.processInputs("IntakeRollers", inputs);  //Updates the inputs in the logger
+    goalAngle = MathUtil.clamp(state.getStateOutput(), lowerLimitDegrees, upperLimitDegrees);
 
-        goalAngle = MathUtil.clamp(state.getStateOutput(), lowerLimitDegrees, upperLimitDegrees);
-
-        if (state == State.OFF && pidController.atGoal()) {
-          m_motor.setControl(m_neutral);
-        } else {
-            output = pidController.calculate(currentAngle, goalAngle) + ff.calculate(0, 0);
-          m_motor.setVoltage(output);
-        }
-
-        displayInfo(debug);
+    if (state == State.HOME && pidController.atGoal()) {
+      // motor.setControl(Neutral)
+    } else {
+      output = pidController.calculate(currentAngle, goalAngle) + ff.calculate(0, 0);
+      // motor.setControl(output);
     }
 
+  }
 
-    /* Run Open loop at the specified voltage */
-    public void runVolts(double volts) {
-        io.setVoltage(volts);
-    }
-  
-    public Command setStateCommand(State state) {
-        Logger.recordOutput("ClimberJoint State", state.toString());
-        return startEnd(() -> this.state = state, () -> this.state = State.OFF);
-    }
-
-    private void displayInfo(boolean debug) {
-        if (debug) {
-            SmartDashboard.putString("ShooterJointSubsystem State ", state.toString());
-            SmartDashboard.putNumber("Shooter Joint Setpoint ", state.getStateOutput());
-            SmartDashboard.putNumber("Shooter Joint Output ", m_motor.getMotorVoltage().getValueAsDouble());
-            SmartDashboard.putNumber("Shooter Joing Current Draw", m_motor.getSupplyCurrent().getValueAsDouble());
-        }
-
-    }
+  public Command setStateCommand(State state) {
+    return runOnce(() -> this.state = state);
+  }
 }

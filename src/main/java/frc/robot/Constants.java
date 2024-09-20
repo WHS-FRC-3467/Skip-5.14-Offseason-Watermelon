@@ -52,6 +52,11 @@ public class Constants {
         
     }
 
+    public static final class ShooterRollersConstants {
+        public static final int ID_Flywheel = 21;
+        public static final int ID_FlywheelFollower = 22;
+    }
+    
     public static final class ExampleSubsystemConstants {
             public static final int ID_Motor = 0;
     
