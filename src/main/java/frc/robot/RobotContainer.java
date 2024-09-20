@@ -11,10 +11,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.LaserCanSensor;
 import frc.robot.subsystems.SimpleSubsystem;
+import frc.robot.subsystems.YSplitRollers;
 
 public class RobotContainer {
   private double MaxSpeed = TunerConstants.kSpeedAt12VoltsMps; // kSpeedAt12VoltsMps desired top speed
@@ -25,6 +28,13 @@ public class RobotContainer {
   public final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
 
   public final SimpleSubsystem simpleSubsystem = new SimpleSubsystem();
+  public final YSplitRollers ySplitRollers = new YSplitRollers();
+
+  public final LaserCanSensor laserCanSensor1 = new LaserCanSensor(0);
+  public final LaserCanSensor laserCanSensor2 = new LaserCanSensor(0);
+
+  public final Trigger beamBreak1 = new Trigger(() -> laserCanSensor1.isClose());
+  public final Trigger beamBreak2 = new Trigger(() -> laserCanSensor2.isClose());
 
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
       .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
@@ -67,6 +77,8 @@ public class RobotContainer {
     joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
     joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
     joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+
+
   }
 
   public RobotContainer() {
