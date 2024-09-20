@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems;
+package frc.robot.subsystems.ShooterRollers;
 
 import java.util.function.DoubleSupplier;
 
@@ -25,6 +25,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 public class ShooterRollers extends SubsystemBase {
+
+    private final ShooterRollersIO io;
+    private final ShooterRollersIOInputsAutoLogged inputs = new ShooterRollersIOInputsAutoLogged();
+    private final SimpleMotorFeedforward ffModel;
 
     @RequiredArgsConstructor
     @Getter
@@ -50,7 +54,8 @@ public class ShooterRollers extends SubsystemBase {
     private State state = State.OFF;
 
       // Initialize motor controllers
-    TalonFX m_flywheel = new TalonFX(ShooterRollersConstants.ID_Flywheel); 
+    TalonFX m_left = new TalonFX(ShooterRollersConstants.ID_Flywheel); 
+    TalonFX m_right = new TalonFX(ShooterRollersConstants.ID_FlywheelFollower);
 
     private final double speedMax = 100.0;
     private final double speedMin = 0.0;
@@ -68,8 +73,26 @@ public class ShooterRollers extends SubsystemBase {
 
 
     /** Creates a new Flywheel. */
-    public ShooterRollers() {
+    public ShooterRollers(ShooterRollersIO io) {
+        this.io = io;
+        switch (Constants.currentMode) {
+          case REAL:
+            ffModel = new SimpleMotorFeedforward(0.0, 0.0); // Need to find
+            io.configurePID(1.0, 0.0, 0.0);
+            break;
+          case REPLAY:
+            ffModel = new SimpleMotorFeedforward(0.0, 0.0); // Need to find
+            io.configurePID(1.0, 0.0, 0.0);
+            break;
+          case SIM:
+            ffModel = new SimpleMotorFeedforward(0.0, 0.0); // Need to find
+            io.configurePID(0.5, 0.0, 0.0);
+            break;
+          default:
+            ffModel = new SimpleMotorFeedforward(0.0, 0.0); // Need to find
+            break;
         // m_flywheel.getConfigurator().apply(ShooterRollersConstants.shooterMotorConfig(m_flywheel.getDeviceID()));
+        }
     }
 
     @Override
@@ -78,11 +101,11 @@ public class ShooterRollers extends SubsystemBase {
         displayInfo(true);
 
         if (state == State.OFF) {
-            m_flywheel.setControl(m_neutralOut);
+            m_left.setControl(m_neutralOut);
         } else {
             goalSpeed = MathUtil.clamp(state.getStateOutput(), speedMin, speedMax);  
             // create a velocity closed-loop request, voltage output, slot 0 configs
-            m_flywheel.setControl(m_request.withVelocity(goalSpeed).withFeedForward(0.5));
+            m_left.setControl(m_request.withVelocity(goalSpeed).withFeedForward(0.5));
         }
 
     }
@@ -96,7 +119,7 @@ public class ShooterRollers extends SubsystemBase {
             //SmartDashboard.putBoolean("Shooter at speed", atGoal());
             SmartDashboard.putString("Flywheel state", getState().toString());
             SmartDashboard.putNumber("Flywheel Setpoint", state.getStateOutput());
-            SmartDashboard.putNumber("Flywheel Current draw", m_flywheel.getSupplyCurrent().getValueAsDouble());
+            SmartDashboard.putNumber("Flywheel Current draw", m_left.getSupplyCurrent().getValueAsDouble());
         }
     }
 }
