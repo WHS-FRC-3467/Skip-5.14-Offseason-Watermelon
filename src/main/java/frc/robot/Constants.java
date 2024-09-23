@@ -150,6 +150,8 @@ public class Constants {
         public static final class ClimberConstants {
             public static final int ID_ClimberLeader = 27;
             public static final int ID_ClimberFollower = 28;
+            public static final int k_CLIMBER_ENCODER_ID = 0;
+
     
              public static TalonFXConfiguration motorConfig() {
                 TalonFXConfiguration m_configuration = new TalonFXConfiguration();
@@ -166,9 +168,14 @@ public class Constants {
                 m_configuration.Slot0.kD = 0;
     
     
-                return m_configuration; 
+                return m_configuration;        
                 
         }
+
+                public static final double k_CLIMBER_HORIZONTAL_OFFSET_DUTYCYCLE = 180.4/360; // 180.4 deg when measured against the hardstop (stowed)
+
+                public static final double kDuty_Cycle_Min = 1.0/1025.0;
+                public static final double kDuty_Cycle_Max = 1024.0/1025.0;
     }
 
     public static final class StageConstants { 
