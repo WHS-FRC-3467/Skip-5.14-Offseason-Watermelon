@@ -45,7 +45,8 @@ public class Constants {
         public static final int ID_ElevatorLeader = 25;
         public static final int ID_ElevatorFollower = 26;  
         public static final int ID_ElevatorAbsEncoder = 0;
-
+        public static final int tolerance = 3;
+        public static final double goalAngle = 7; //I'm not sure what the goal angle should be or if it should be related to the state
         public static final double maxVelocity = Math.PI;
         public static final double maxAcceleration = Math.PI / 2;
 
