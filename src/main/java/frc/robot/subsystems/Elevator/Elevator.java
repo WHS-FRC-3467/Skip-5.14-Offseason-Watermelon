@@ -14,6 +14,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
@@ -21,6 +22,7 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 // import frc.robot.RobotState;
 import frc.robot.Constants.ElevatorConstants;
 import lombok.Getter;
@@ -58,9 +60,35 @@ public class Elevator extends SubsystemBase {
   @Setter
   private State state = State.COLLECT;
 
+  // 1 beam break and two laser CANs in amp mech
+
   //Initializing motors
   TalonFX m_ElevatorMotor = new TalonFX(ElevatorConstants.ID_ElevatorLeader);
   TalonFX m_ElevatorFollowerMotor = new TalonFX(ElevatorConstants.ID_ElevatorFollower);
+
+  private final ElevatorIO io;
+  private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
+  private final SimpleMotorFeedforward ffModel;
+
+public Elevator(ElevatorIO io) {
+    this.io = io;
+    switch (Constants.currentMode) {
+      case REAL:
+        ffModel = new SimpleMotorFeedforward(0.0, 0.0); // Need to find
+        io.configurePID(1.0, 0.0, 0.0);
+        break;
+      case REPLAY:
+        ffModel = new SimpleMotorFeedforward(0.0, 0.0); // Need to find
+        io.configurePID(1.0, 0.0, 0.0);
+        break;
+      case SIM:
+        ffModel = new SimpleMotorFeedforward(0.0, 0.0); // Need to find
+        io.configurePID(0.5, 0.0, 0.0);
+        break;
+      default:
+        ffModel = new SimpleMotorFeedforward(0.0, 0.0); // Need to find
+        break;
+    }
 
   //Create a on RIO Profile PID Controller, adding constraints to limit max vel and accel 
   private ProfiledPIDController pidController = new ProfiledPIDController(18, 0, 0.2,
