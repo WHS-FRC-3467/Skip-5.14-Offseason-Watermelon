@@ -7,6 +7,7 @@ package frc.robot.subsystems.ShooterRollers;
 import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -62,7 +63,9 @@ public class ShooterRollers extends SubsystemBase {
     private final double maxVelocity = 1;
     private final double maxAcceleration = 1;
     
-    final VelocityVoltage m_request = new VelocityVoltage(0).withSlot(0);
+    // final VelocityVoltage m_request = new VelocityVoltage(0).withSlot(0);
+    // create a Motion Magic request, voltage output
+    final MotionMagicVelocityVoltage m_request = new MotionMagicVelocityVoltage(0);
 
     private double goalSpeed;
     private double currentAngle;
@@ -104,8 +107,15 @@ public class ShooterRollers extends SubsystemBase {
             m_left.setControl(m_neutralOut);
         } else {
             goalSpeed = MathUtil.clamp(state.getStateOutput(), speedMin, speedMax);  
-            // create a velocity closed-loop request, voltage output, slot 0 configs
-            m_left.setControl(m_request.withVelocity(goalSpeed).withFeedForward(0.5));
+            // create a Motion Magic velocity closed-loop request, voltage output, slot 0 configs
+            m_left.setControl(m_request.withVelocity(goalSpeed));
+            // OR 
+
+
+
+
+            
+            io.setVoltage(m_request.withVelocity(goalSpeed));
         }
 
     }

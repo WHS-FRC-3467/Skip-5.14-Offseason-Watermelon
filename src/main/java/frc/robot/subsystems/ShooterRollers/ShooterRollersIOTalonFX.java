@@ -4,7 +4,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-//import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -15,11 +15,17 @@ import frc.robot.Constants;
 public class ShooterRollersIOTalonFX implements ShooterRollersIO {
     private static final double GEAR_RATIO = 0.0;   // Need to get this information
 
-    private final TalonFX leader = new TalonFX(Constants.ExampleSubsystemConstants.ID_Motor);
+    private final TalonFX leader = new TalonFX(Constants.ShooterRollersConstants.ID_Flywheel);
     private final StatusSignal<Double> leaderPosition = leader.getPosition();
     private final StatusSignal<Double> leaderVelocity = leader.getVelocity();
     private final StatusSignal<Double> leaderAppliedVolts = leader.getMotorVoltage();
     private final StatusSignal<Double> leaderCurrent = leader.getSupplyCurrent();
+
+    private final TalonFX follower = new TalonFX(Constants.ShooterRollersConstants.ID_FlywheelFollower);
+    private final StatusSignal<Double> followerPosition = leader.getPosition();
+    private final StatusSignal<Double> followerVelocity = leader.getVelocity();
+    private final StatusSignal<Double> followerAppliedVolts = leader.getMotorVoltage();
+    private final StatusSignal<Double> followerCurrent = leader.getSupplyCurrent();
 
     public ShooterRollersIOTalonFX() {
         var config = new TalonFXConfiguration();
@@ -36,27 +42,33 @@ public class ShooterRollersIOTalonFX implements ShooterRollersIO {
         config.MotionMagic.MotionMagicAcceleration = 40.0; // Start small acceleration and jerk and go faster
         config.MotionMagic.MotionMagicJerk = 400.0;
         leader.getConfigurator().apply(config);
-
+        follower.getConfigurator().apply(config);
+        follower.setControl(new Follower(leader.getDeviceID(), false));
         BaseStatusSignal.setUpdateFrequencyForAll(
             50.0, leaderPosition, leaderVelocity, leaderAppliedVolts, leaderCurrent);
         leader.optimizeBusUtilization();
+        follower.optimizeBusUtilization();
     }
 
     @Override
     public void updateInputs(ShooterRollersIOInputs inputs) {
         BaseStatusSignal.refreshAll(
             leaderPosition, leaderVelocity, leaderAppliedVolts, leaderCurrent);
+        BaseStatusSignal.refreshAll(
+            followerPosition, followerVelocity, followerAppliedVolts, followerCurrent);
         inputs.positionRad = Units.rotationsToRadians(leaderPosition.getValueAsDouble()) / GEAR_RATIO;
         inputs.velocityRadPerSec =
             Units.rotationsToRadians(leaderVelocity.getValueAsDouble()) / GEAR_RATIO;
         inputs.appliedVolts = leaderAppliedVolts.getValueAsDouble();
         inputs.currentAmps =
             new double[] {leaderCurrent.getValueAsDouble()};
+        // Do we need to do the same thing with follower?
     }
 
     @Override
     public void setVoltage(double volts) {
         leader.setControl(new VoltageOut(volts));
+        follower.setControl(new VoltageOut(volts));
     }
 
     @Override
