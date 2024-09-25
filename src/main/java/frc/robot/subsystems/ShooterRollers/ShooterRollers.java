@@ -63,9 +63,9 @@ public class ShooterRollers extends SubsystemBase {
     private final double maxVelocity = 1;
     private final double maxAcceleration = 1;
     
-    // final VelocityVoltage m_request = new VelocityVoltage(0).withSlot(0);
+    final VelocityVoltage m_request = new VelocityVoltage(0).withSlot(0);
     // create a Motion Magic request, voltage output
-    final MotionMagicVelocityVoltage m_request = new MotionMagicVelocityVoltage(0);
+    //final MotionMagicVelocityVoltage m_request = new MotionMagicVelocityVoltage(0);
 
     private double goalSpeed;
     private double currentAngle;
@@ -114,8 +114,8 @@ public class ShooterRollers extends SubsystemBase {
 
 
 
-            
-            io.setVoltage(m_request.withVelocity(goalSpeed));
+
+            io.setVelocity(goalSpeed, 0);
         }
 
     }
