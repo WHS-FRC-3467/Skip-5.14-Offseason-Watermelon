@@ -132,7 +132,11 @@ public class Constants {
             m_configuration.CurrentLimits.StatorCurrentLimit = 70;
             m_configuration.CurrentLimits.StatorCurrentLimitEnable = true; 
 
-            m_configuration.Slot0.kP = .03;
+            //normal MotionMagic values seem higher, might have to change these are citrus values
+            m_configuration.MotionMagic.MotionMagicCruiseVelocity = 0.5;
+            m_configuration.MotionMagic.MotionMagicAcceleration = 4.0;
+
+            m_configuration.Slot0.kP = 1;
             m_configuration.Slot0.kI = 0;
             m_configuration.Slot0.kD = 0;
             m_configuration.Slot0.kV = .125;
@@ -151,7 +155,9 @@ public class Constants {
             public static final int ID_ClimberLeader = 27;
             public static final int ID_ClimberFollower = 28;
             public static final int k_CLIMBER_ENCODER_ID = 0;
-
+            public static double maxVelocity = Math.PI;
+            public static double maxAcceleration = Math.PI / 2;
+            public static final int tolerance = 3;
     
              public static TalonFXConfiguration motorConfig() {
                 TalonFXConfiguration m_configuration = new TalonFXConfiguration();
@@ -166,6 +172,8 @@ public class Constants {
                 m_configuration.Slot0.kP = 1;
                 m_configuration.Slot0.kI = 0;
                 m_configuration.Slot0.kD = 0;
+
+                  
     
     
                 return m_configuration;        

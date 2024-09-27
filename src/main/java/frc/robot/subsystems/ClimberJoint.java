@@ -8,6 +8,8 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.MathUtil;
@@ -25,7 +27,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import frc.robot.Constants.ClimberConstants;
-import frc.robot.Constants.ClimberConstants;
+
 
 // Make sure to get all the imports needed and change Climber in constants if needed
 public class ClimberJoint extends SubsystemBase{
@@ -35,7 +37,7 @@ public class ClimberJoint extends SubsystemBase{
     
     //Following are rough esitamtes
     CLIMB(() -> 120.0),
-    DOWN(() -> 20.0),
+    DOWN(() -> 10.0),
     STOW(() -> 0.0);
 
     private final DoubleSupplier outputSupplier;
@@ -50,10 +52,9 @@ public class ClimberJoint extends SubsystemBase{
   private State state = State.STOW;
 
 
-    private final double maxVelocity = 1;
-    private final double maxAcceleration = 1;
+   
     private ProfiledPIDController pidController = new ProfiledPIDController(1, 0, 0,
-        new TrapezoidProfile.Constraints(maxVelocity, maxAcceleration));
+        new TrapezoidProfile.Constraints(ClimberConstants.maxVelocity, ClimberConstants.maxAcceleration));
     private double currentAngle;
     private SimpleMotorFeedforward ff = new SimpleMotorFeedforward(0, 0);
     private double climberStowed = 0.0;
@@ -61,8 +62,8 @@ public class ClimberJoint extends SubsystemBase{
     private double climberMaxExtension = 0.48;
     private double climberPull = 0.02;
     private double rotationsPerUnitDistance = 8.0 / (Units.inchesToMeters(0.655) * Math.PI);
+    private final NeutralOut m_neutral = new NeutralOut();
   
-
     
     TalonFX m_climberLeaderMotor = new TalonFX(ClimberConstants.ID_ClimberLeader);
     TalonFX m_climberFollowerMotor = new TalonFX(ClimberConstants.ID_ClimberFollower);
@@ -70,6 +71,8 @@ public class ClimberJoint extends SubsystemBase{
 
     private final DutyCycleOut m_percent = new DutyCycleOut(0);
     private final NeutralOut m_brake = new NeutralOut();
+
+    
 
     public ClimberJoint() {
 
@@ -83,6 +86,9 @@ public class ClimberJoint extends SubsystemBase{
         m_climberEncoder.setPositionOffset(ClimberConstants.k_CLIMBER_HORIZONTAL_OFFSET_DUTYCYCLE);
         // this sets the distance per rotation to be equal to 2pi radians
         m_climberEncoder.setDistancePerRotation(Math.PI*2);
+
+      pidController.setTolerance(ClimberConstants.tolerance);
+
 
     }
   
@@ -110,8 +116,6 @@ public class ClimberJoint extends SubsystemBase{
         //smart dashboard stuff
         SmartDashboard.putNumber("Climber angle", currentAngle);
         SmartDashboard.putNumber("Climber Setpoint ", state.getStateOutput());
-
-
       }
 
     //Command prepareForClimbCommand(){
