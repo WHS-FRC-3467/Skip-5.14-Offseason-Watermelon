@@ -22,6 +22,7 @@ public class ShooterPivot extends SubsystemBase {
   @Getter
   public enum State {
     HOME(() -> 0.0),
+    CLIMBERCLEARENCE(() ->20.0),
     OUT(() -> 90.0);
 
     private final DoubleSupplier outputSupplier;

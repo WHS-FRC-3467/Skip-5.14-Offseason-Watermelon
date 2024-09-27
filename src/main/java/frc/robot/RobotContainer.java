@@ -14,7 +14,10 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.SimpleSubsystem;
+import frc.robot.subsystems.ClimberJoint;
+import frc.robot.subsystems.ShooterPivot;
 
 public class RobotContainer {
   private double MaxSpeed = TunerConstants.kSpeedAt12VoltsMps; // kSpeedAt12VoltsMps desired top speed
@@ -25,6 +28,9 @@ public class RobotContainer {
   public final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
 
   public final SimpleSubsystem simpleSubsystem = new SimpleSubsystem();
+  public ClimberJoint m_climber = null;
+  public ShooterPivot m_shooterpivot = null;
+
 
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
       .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
@@ -67,9 +73,14 @@ public class RobotContainer {
     joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
     joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
     joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+
+    joystick.x().whileTrue(m_shooterpivot.setStateCommand(ShooterPivot.State.CLIMBERCLEARENCE).andThen(m_climber.setStateCommand(ClimberJoint.State.CLIMB)));
+    joystick.b().whileTrue(m_climber.setStateCommand(ClimberJoint.State.DOWN));
   }
 
   public RobotContainer() {
+    m_climber = new ClimberJoint();
+    m_shooterpivot = new ShooterPivot();
     configureBindings();
   }
 
