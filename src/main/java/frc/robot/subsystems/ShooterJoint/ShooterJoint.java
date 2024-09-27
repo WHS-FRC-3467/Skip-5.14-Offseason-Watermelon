@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.subsystems.IntakeRollers;
+import frc.robot.RobotState;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -37,11 +37,11 @@ public class ShooterJoint extends SubsystemBase {
     @RequiredArgsConstructor
     @Getter
     public enum State {
-        OFF(() -> 0.0),
-        OUT(() -> 90.0),
+        STOW(() -> 0.0),
+        PODIUM(() -> 90.0),
         SUBWOOFER(() -> 20.0),
         CLIMBCLEARANCE(() -> 20.0),
-        DYNAMIC(() -> 30.0);
+        DYNAMIC(()-> RobotState.getInstance().getShotAngle());
 
         private final DoubleSupplier outputSupplier;
 
@@ -52,7 +52,7 @@ public class ShooterJoint extends SubsystemBase {
 
     @Getter
     @Setter
-    private State state = State.OFF;
+    private State state = State.STOW;
 
     private boolean debug = false;
 
