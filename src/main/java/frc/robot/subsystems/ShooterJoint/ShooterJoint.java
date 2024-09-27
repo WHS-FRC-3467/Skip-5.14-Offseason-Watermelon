@@ -130,7 +130,7 @@ public class ShooterJoint extends SubsystemBase {
 
         goalAngle = MathUtil.clamp(state.getStateOutput(), lowerLimitDegrees, upperLimitDegrees);
 
-        if (state == State.OFF && pidController.atGoal()) {
+        if (state == State.STOW && pidController.atGoal()) {
           m_motor.setControl(m_neutral);
           //io.setControl(m_neutral); Question for later
         } else {
@@ -149,7 +149,7 @@ public class ShooterJoint extends SubsystemBase {
   
     public Command setStateCommand(State state) {
         Logger.recordOutput("Shooter Joint State", state.toString());
-        return startEnd(() -> this.state = state, () -> this.state = State.OFF);
+        return startEnd(() -> this.state = state, () -> this.state = State.STOW);
     }
 
     private void displayInfo(boolean debug) {
