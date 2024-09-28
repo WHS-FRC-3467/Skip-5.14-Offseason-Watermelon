@@ -53,9 +53,10 @@ public class IntakeRollersIOTalonFX implements IntakeRollersIO {
         // you always want to make sure you are updating the global variables that carry out through the IO layers
         // Here we are making sure that we also update the Hardware as well
         BaseStatusSignal.refreshAll(
-        leaderPosition, leaderVelocity, leaderAppliedVolts, leaderCurrent/*, followerCurrent */);
+        leaderPosition, leaderVelocity, leaderAppliedVolts, leaderCurrent);
 
         inputs.test = 0.2;
+        inputs.voltage = leaderAppliedVolts.getValueAsDouble();
     }
 
     @Override

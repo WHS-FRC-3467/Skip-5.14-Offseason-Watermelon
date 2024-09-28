@@ -34,8 +34,8 @@ public class IntakeRollers extends SubsystemBase {
     @Getter
     public enum State{
 
-        FWD (() -> -0.6),
-        REV (() -> 0.3),
+        FWD (() -> -0.6*12),
+        REV (() -> 0.3*12),
         OFF(() -> 0.0);
 
         private final DoubleSupplier outputSupplier;
@@ -108,7 +108,7 @@ public class IntakeRollers extends SubsystemBase {
         // This method will be called once per scheduler run
         displayInfo(true);
 
-        m_roller.set(state.getStateOutput());
+        io.setVoltage(state.getStateOutput());
     }
 
     @Override

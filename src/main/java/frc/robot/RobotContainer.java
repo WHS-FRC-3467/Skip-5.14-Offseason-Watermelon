@@ -73,20 +73,10 @@ public class RobotContainer {
   }
 
     public RobotContainer() {
-        switch (Constants.currentMode) {
-            case REAL:
-                instance = new IntakeRollers(new IntakeRollersIOTalonFX());
-                // Now do that for the other subsystems
-                break;
-            case SIM:
-                instance = new IntakeRollers(new IntakeRollersIOSim());
-                break;
-            default:
-                instance = new IntakeRollers(new IntakeRollersIOTalonFX());
-                break;
-        };
+        
+      instance = IntakeRollers.getInstance();
 
-        configureBindings();
+      configureBindings();
     }
 
   public Command getAutonomousCommand() {

@@ -27,7 +27,7 @@ public class IntakeRollersIOSim implements IntakeRollersIO {
 
         // Update the IO layer to the values you are now using
         inputs.test = 0.1;
-
+        inputs.voltage = appliedVolts;
     }
 
     @Override 

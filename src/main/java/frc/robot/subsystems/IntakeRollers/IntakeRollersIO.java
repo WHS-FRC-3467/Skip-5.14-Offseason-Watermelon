@@ -7,6 +7,7 @@ public interface IntakeRollersIO {
     public static class IntakeRollersIOInputs {
         // This is where we will establish variables
         public double test = 0.0;
+        public double voltage = 0.0;
     }
 
     /* Updates the set of loggable inputs */
