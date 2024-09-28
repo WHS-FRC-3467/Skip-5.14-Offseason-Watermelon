@@ -6,6 +6,8 @@ package frc.robot;
 
 import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -38,6 +40,14 @@ public class RobotContainer {
   /* Path follower */
   private Command runAuto = drivetrain.getAutoPath("Tests");
 
+  // AUTO - Register Named Commands
+  //NamedCommands.registerCommand("StopShooter", m_ShooterSubsystem.setStateCommand(ShooterState.STOP));
+          // Build an auto chooser. This will use Commands.none() as the default option.
+  autoChooser = AutoBuilder.buildAutoChooser();
+          // Another option that allows you to specify the default auto by its name
+          // autoChooser = AutoBuilder.buildAutoChooser("My Default Auto");
+  SmartDashboard.putData("Auto Chooser", autoChooser);
+
   private final Telemetry logger = new Telemetry(DriveConstants.MaxSpeed);
 
   private void configureBindings() {
@@ -68,8 +78,13 @@ public class RobotContainer {
     configureBindings();
   }
 
-  public Command getAutonomousCommand() {
-    /* First put the drivetrain into auto run mode, then run the auto */
-    return runAuto;
+    /**
+     * Use this to pass the autonomous command to the main {@link Robot} class.
+     *
+     * @return the command to run in autonomous
+     */
+     public Command getAutonomousCommand() {
+      return autoChooser.getSelected();
   }
+
 }
