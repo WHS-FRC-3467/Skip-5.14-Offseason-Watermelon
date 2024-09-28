@@ -58,21 +58,19 @@ public class ClimberJoint extends SubsystemBase{
     private double currentAngle;
     private SimpleMotorFeedforward ff = new SimpleMotorFeedforward(0, 0);
     private double climberStowed = 0.0;
-    private double climberSetpoint = 0.4;
     private double climberMaxExtension = 0.48;
+    private double climberSetpoint;
     private double climberPull = 0.02;
     private double rotationsPerUnitDistance = 8.0 / (Units.inchesToMeters(0.655) * Math.PI);
     private final NeutralOut m_neutral = new NeutralOut();
-  
-    
+    private double output = 0;
+    private double goalAngle;
+
     TalonFX m_climberLeaderMotor = new TalonFX(ClimberConstants.ID_ClimberLeader);
     TalonFX m_climberFollowerMotor = new TalonFX(ClimberConstants.ID_ClimberFollower);
     DutyCycleEncoder m_climberEncoder = new DutyCycleEncoder(ClimberConstants.k_CLIMBER_ENCODER_ID);
 
-    private final DutyCycleOut m_percent = new DutyCycleOut(0);
-    private final NeutralOut m_brake = new NeutralOut();
-
-    
+    private final NeutralOut m_brake = new NeutralOut();    
 
     public ClimberJoint() {
 
@@ -98,7 +96,7 @@ public class ClimberJoint extends SubsystemBase{
       if (state == State.STOW) {
         m_climberLeaderMotor.setControl(m_brake);
       } else {
-        m_climberLeaderMotor.setControl(m_percent.withOutput(state.getStateOutput()));
+        output = pidController.calculate(currentAngle, goalAngle) + ff.calculate(0, 0);
       }
         
       climberSetpoint = MathUtil.clamp(state.getStateOutput(), climberStowed, climberMaxExtension);
@@ -116,11 +114,8 @@ public class ClimberJoint extends SubsystemBase{
         //smart dashboard stuff
         SmartDashboard.putNumber("Climber angle", currentAngle);
         SmartDashboard.putNumber("Climber Setpoint ", state.getStateOutput());
+        
       }
-
-    //Command prepareForClimbCommand(){
-    //  return new RunCommand(() -> this.isShooterAtClearence(shooter.angle.get(RobotConstants.SHOOTER)), this.until isShooterAtClearence);
-    //}
 
     }
 }
