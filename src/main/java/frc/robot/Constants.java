@@ -158,6 +158,7 @@ public class Constants {
             public static double maxVelocity = Math.PI;
             public static double maxAcceleration = Math.PI / 2;
             public static final int tolerance = 3;
+            
     
              public static TalonFXConfiguration motorConfig() {
                 TalonFXConfiguration m_configuration = new TalonFXConfiguration();

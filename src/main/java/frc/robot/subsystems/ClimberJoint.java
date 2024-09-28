@@ -36,23 +36,21 @@ public class ClimberJoint extends SubsystemBase{
   public enum State {
     
     //Following are rough esitamtes
-    CLIMB(() -> 120.0),
-    DOWN(() -> 10.0),
-    STOW(() -> 0.0);
+    CLIMB(120.0),
+    DOWN(10.0),
+    STOW(0.0);
 
-    private final DoubleSupplier outputSupplier;
+    private final double outputSupplier;
 
     private double getStateOutput() {
-      return outputSupplier.getAsDouble();
+      return Units.degreesToRadians(outputSupplier);
     }
   }
 
   @Getter
   @Setter
-  private State state = State.STOW;
+    private State state = State.STOW;
 
-
-   
     private ProfiledPIDController pidController = new ProfiledPIDController(1, 0, 0,
         new TrapezoidProfile.Constraints(ClimberConstants.maxVelocity, ClimberConstants.maxAcceleration));
     private double currentAngle;
@@ -60,9 +58,9 @@ public class ClimberJoint extends SubsystemBase{
     private double climberStowed = 0.0;
     private double climberMaxExtension = 0.48;
     private double climberSetpoint;
-    private double climberPull = 0.02;
     private double rotationsPerUnitDistance = 8.0 / (Units.inchesToMeters(0.655) * Math.PI);
     private final NeutralOut m_neutral = new NeutralOut();
+    private final VoltageOut m_voltage = new VoltageOut(0);
     private double output = 0;
     private double goalAngle;
 
@@ -92,17 +90,15 @@ public class ClimberJoint extends SubsystemBase{
   
     public void periodic() {
       displayInfo(true);
-
-      if (state == State.STOW) {
+      goalAngle = MathUtil.clamp(state.getStateOutput(), climberStowed, climberMaxExtension);
+      pidController.setGoal(goalAngle);
+      if (state == State.STOW && pidController.atGoal()) {
         m_climberLeaderMotor.setControl(m_brake);
       } else {
         output = pidController.calculate(currentAngle, goalAngle) + ff.calculate(0, 0);
+        m_climberLeaderMotor.setControl(m_voltage.withOutput(output));
       }
         
-      climberSetpoint = MathUtil.clamp(state.getStateOutput(), climberStowed, climberMaxExtension);
-      if (state == State.STOW && pidController.atGoal()) {
-
-      }
     }
   
     public Command setStateCommand(State state) {
@@ -114,7 +110,7 @@ public class ClimberJoint extends SubsystemBase{
         //smart dashboard stuff
         SmartDashboard.putNumber("Climber angle", currentAngle);
         SmartDashboard.putNumber("Climber Setpoint ", state.getStateOutput());
-        
+
       }
 
     }

@@ -9,6 +9,7 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -47,6 +48,9 @@ public class ShooterPivot extends SubsystemBase {
   private SimpleMotorFeedforward ff = new SimpleMotorFeedforward(0, 0);
   private double output = 0;
 
+  private Debouncer m_debounce = new Debouncer(.1);
+
+
   /** Creates a new ComplexSubsystem. */
   public ShooterPivot() {
 
@@ -66,6 +70,9 @@ public class ShooterPivot extends SubsystemBase {
 
   }
 
+  public boolean atGoal() {
+    return m_debounce.calculate(pidController.atGoal());
+  }
   public Command setStateCommand(State state) {
     return runOnce(() -> this.state = state);
   }

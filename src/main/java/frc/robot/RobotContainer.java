@@ -9,6 +9,7 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -27,8 +28,8 @@ public class RobotContainer {
   public final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
 
   public final SimpleSubsystem simpleSubsystem = new SimpleSubsystem();
-  public ClimberJoint m_climber = null;
-  public ShooterPivot m_shooterpivot = null;
+  public ClimberJoint m_climber = new ClimberJoint();
+  public ShooterPivot m_shooterpivot = new ShooterPivot();
 
 
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -73,7 +74,7 @@ public class RobotContainer {
     joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
     joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
-    joystick.x().whileTrue(m_shooterpivot.setStateCommand(ShooterPivot.State.CLIMBERCLEARENCE).andThen(m_climber.setStateCommand(ClimberJoint.State.CLIMB)));
+    joystick.x().whileTrue(m_shooterpivot.setStateCommand(ShooterPivot.State.CLIMBERCLEARENCE).alongWith(Commands.waitUntil(m_shooterpivot::atGoal).andThen(m_climber.setStateCommand(ClimberJoint.State.CLIMB))));
     joystick.b().whileTrue(m_climber.setStateCommand(ClimberJoint.State.DOWN));
   }
 
