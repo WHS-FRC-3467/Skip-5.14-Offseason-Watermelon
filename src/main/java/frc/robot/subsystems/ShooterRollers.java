@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import java.util.function.DoubleSupplier;
 
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVelocityVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -50,7 +51,8 @@ public class ShooterRollers extends SubsystemBase {
     private State state = State.OFF;
 
       // Initialize motor controllers
-    TalonFX m_flywheel = new TalonFX(ShooterRollersConstants.ID_Flywheel); 
+    TalonFX m_flywheel = new TalonFX(ShooterRollersConstants.ID_Flywheel);
+    TalonFX m_flywheel_follower = new TalonFX(ShooterRollersConstants.ID_FlywheelFollower); 
 
     private final double speedMax = 100.0;
     private final double speedMin = 0.0;
@@ -69,7 +71,8 @@ public class ShooterRollers extends SubsystemBase {
 
     /** Creates a new Flywheel. */
     public ShooterRollers() {
-        // m_flywheel.getConfigurator().apply(ShooterRollersConstants.shooterMotorConfig(m_flywheel.getDeviceID()));
+        m_flywheel.getConfigurator().apply(ShooterRollersConstants.motorConfig());
+        m_flywheel_follower.setControl(new Follower(m_flywheel.getDeviceID(), true));
     }
 
     @Override

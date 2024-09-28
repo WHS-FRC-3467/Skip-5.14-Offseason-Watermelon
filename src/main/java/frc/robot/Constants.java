@@ -79,6 +79,30 @@ public class Constants {
     public static final class ShooterRollersConstants {
         public static final int ID_Flywheel = 21;
         public static final int ID_FlywheelFollower = 22;
+
+        public static TalonFXConfiguration motorConfig() {
+            TalonFXConfiguration m_configuration = new TalonFXConfiguration();
+
+            m_configuration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+            m_configuration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+            m_configuration.Voltage.PeakForwardVoltage = 12.0;
+            m_configuration.Voltage.PeakReverseVoltage = -12.0;
+
+            m_configuration.CurrentLimits.SupplyCurrentLimit = 20;
+            m_configuration.CurrentLimits.SupplyCurrentThreshold = 40;
+            m_configuration.CurrentLimits.SupplyTimeThreshold = 0.1;
+            m_configuration.CurrentLimits.SupplyCurrentLimitEnable = true;
+            m_configuration.CurrentLimits.StatorCurrentLimit = 70;
+            m_configuration.CurrentLimits.StatorCurrentLimitEnable = true;
+
+            return m_configuration;
+        }
+
+        public static TalonFXConfiguration motor2Config() {
+            TalonFXConfiguration m_configuration = motorConfig();
+            m_configuration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+            return m_configuration;
+        }
     }
     
     public static final class ExampleSubsystemConstants {
