@@ -15,6 +15,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -51,6 +52,7 @@ public class ShooterJoint extends SubsystemBase {
   @Getter
   public enum State {
     HOME(() -> 0.0),
+    CLIMBERCLEARENCE(() ->20.0),
     OUT(() -> 90.0);
 
     private final DoubleSupplier outputSupplier;
@@ -75,6 +77,9 @@ public class ShooterJoint extends SubsystemBase {
   private SimpleMotorFeedforward ff = new SimpleMotorFeedforward(0, 0);
   private double output = 0;
 
+  private Debouncer m_debounce = new Debouncer(.1);
+
+
   /** Creates a new ComplexSubsystem. */
   public ShooterJoint() {
 
@@ -94,6 +99,9 @@ public class ShooterJoint extends SubsystemBase {
 
   }
 
+  public boolean atGoal() {
+    return m_debounce.calculate(pidController.atGoal());
+  }
   public Command setStateCommand(State state) {
     return runOnce(() -> this.state = state);
   }
