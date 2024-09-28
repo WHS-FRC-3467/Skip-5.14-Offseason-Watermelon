@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import java.util.function.DoubleSupplier;
@@ -66,7 +67,6 @@ public class ClimberJoint extends SubsystemBase{
 
     TalonFX m_climberLeaderMotor = new TalonFX(ClimberConstants.ID_ClimberLeader);
     TalonFX m_climberFollowerMotor = new TalonFX(ClimberConstants.ID_ClimberFollower);
-    DutyCycleEncoder m_climberEncoder = new DutyCycleEncoder(ClimberConstants.k_CLIMBER_ENCODER_ID);
 
     private final NeutralOut m_brake = new NeutralOut();    
 
@@ -76,12 +76,12 @@ public class ClimberJoint extends SubsystemBase{
         m_climberFollowerMotor.getConfigurator().apply(ClimberConstants.motorConfig());
         m_climberFollowerMotor.setControl(new Follower(m_climberLeaderMotor.getDeviceID(), true));
             /* Set range of duty cycle encoder in fractions of rotation */
-        m_climberEncoder.setDutyCycleRange(ClimberConstants.kDuty_Cycle_Min, ClimberConstants.kDuty_Cycle_Max);
+        m_climberLeaderMotor.getPosition();
 
             // Position offset in duty cycle, not rads
-        m_climberEncoder.setPositionOffset(ClimberConstants.k_CLIMBER_HORIZONTAL_OFFSET_DUTYCYCLE);
+        //m_climberEncoder.setPositionOffset(ClimberConstants.k_CLIMBER_HORIZONTAL_OFFSET_DUTYCYCLE);
         // this sets the distance per rotation to be equal to 2pi radians
-        m_climberEncoder.setDistancePerRotation(Math.PI*2);
+        //m_climberEncoder.setDistancePerRotation(Math.PI*2);
 
       pidController.setTolerance(ClimberConstants.tolerance);
 

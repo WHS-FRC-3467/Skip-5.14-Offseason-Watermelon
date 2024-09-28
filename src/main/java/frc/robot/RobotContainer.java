@@ -21,7 +21,6 @@ import frc.robot.subsystems.LaserCanSensor;
 import frc.robot.subsystems.SimpleSubsystem;
 import frc.robot.subsystems.YSplitRollers;
 import frc.robot.subsystems.ClimberJoint;
-import frc.robot.subsystems.ShooterPivot;
 
 public class RobotContainer {
   /* Setting up bindings for necessary control of the swerve drive platform */
@@ -54,18 +53,18 @@ public class RobotContainer {
     /* Bindings for drivetrain characterization */
     /* These bindings require multiple buttons pushed to swap between quastatic and dynamic */
     /* Back/Start select dynamic/quasistatic, Y/X select forward/reverse direction */
-    joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+    /* joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
     joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
     joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-    joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+    joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse)); */
 
-    joystick.x().whileTrue(m_shooterpivot.setStateCommand(ShooterPivot.State.CLIMBERCLEARENCE).alongWith(Commands.waitUntil(m_shooterpivot::atGoal).andThen(m_climber.setStateCommand(ClimberJoint.State.CLIMB))));
-    joystick.b().whileTrue(m_climber.setStateCommand(ClimberJoint.State.DOWN));
+    //joystick.x().whileTrue(m_shooterpivot.setStateCommand(ShooterPivot.State.CLIMBERCLEARENCE).alongWith(Commands.waitUntil(m_shooterpivot::atGoal).andThen(m_climber.setStateCommand(ClimberJoint.State.CLIMB))));
+    //joystick.b().whileTrue(m_climber.setStateCommand(ClimberJoint.State.DOWN));
   }
 
   public RobotContainer() {
-    m_climber = new ClimberJoint();
-    m_shooterpivot = new ShooterPivot();
+    /* m_climber = new ClimberJoint();
+    m_shooterpivot = new ShooterPivot(); */
     configureBindings();
   }
 

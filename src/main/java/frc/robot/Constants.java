@@ -158,6 +158,34 @@ public class Constants {
         }
     }
 
+    public static final class ClimberConstants {
+        public static final int ID_ClimberLeader = 0;
+        public static final int ID_ClimberFollower = 0;
+        public static final int k_CLIMBER_ENCODER_ID = 0;
+        public static final int k_CLIMBER_HORIZONTAL_OFFSET_DUTYCYCLE = 0;
+        public static final int tolerance = 2;
+        public static final double maxVelocity = 1.0;
+        public static final double maxAcceleration = 1.0;
+
+        public static TalonFXConfiguration motorConfig() {
+            TalonFXConfiguration m_configuration = new TalonFXConfiguration();
+
+            m_configuration.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+            m_configuration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+            m_configuration.Voltage.PeakForwardVoltage = 12.0;
+            m_configuration.Voltage.PeakReverseVoltage = -12.0;
+
+            m_configuration.CurrentLimits.SupplyCurrentLimit = 20;
+            m_configuration.CurrentLimits.SupplyCurrentThreshold = 40;
+            m_configuration.CurrentLimits.SupplyTimeThreshold = 0.1;
+            m_configuration.CurrentLimits.SupplyCurrentLimitEnable = true;
+            m_configuration.CurrentLimits.StatorCurrentLimit = 70;
+            m_configuration.CurrentLimits.StatorCurrentLimitEnable = true;
+
+            return m_configuration;
+        }
+    }
+
         public static final class YSplitRollersConstants {
         public static final int ID_YSPLIT_ROLLER1 = 0;
         public static final int ID_YSPLIT_ROLLER2 = 1;
