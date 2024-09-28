@@ -62,6 +62,8 @@ public class ShooterJointIOTalonFX implements ShooterJointIO {
         leaderPosition, leaderVelocity, leaderAppliedVolts, leaderCurrent/*, followerCurrent */);
 
         inputs.test = 0.2;
+        inputs.position = leaderPosition.getValueAsDouble();
+        inputs.velocity = leaderVelocity.getValueAsDouble();
     }
 
     @Override

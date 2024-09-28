@@ -23,10 +23,13 @@ public class ShooterJointIOSim implements ShooterJointIO {
         }
 
         // You can establish how fast you want the sim to update
+        // use a simulation class, see advantagekit example
         //sim.update(0.02);
 
         // Update the IO layer to the values you are now using
         inputs.test = 0.1;
+        //inputs.position = sim.position;
+        //inputs.velocity = sim.velocity;
 
     }
 

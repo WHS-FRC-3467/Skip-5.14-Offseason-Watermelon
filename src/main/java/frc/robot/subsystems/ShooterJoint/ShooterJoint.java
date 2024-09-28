@@ -13,6 +13,7 @@ import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -32,13 +33,13 @@ public class ShooterJoint extends SubsystemBase {
 
     private final ShooterJointIO io;
     private final ShooterJointIOInputsAutoLogged inputs = new ShooterJointIOInputsAutoLogged();
-    private final SimpleMotorFeedforward ffModel;
+    private final ArmFeedforward ffModel;
 
     @RequiredArgsConstructor
     @Getter
     public enum State {
         STOW(() -> 0.0),
-        PODIUM(() -> 90.0),
+        PODIUM(() -> 30.0),
         SUBWOOFER(() -> 20.0),
         CLIMBCLEARANCE(() -> 20.0),
         DYNAMIC(()-> RobotState.getInstance().getShotAngle());
@@ -56,11 +57,10 @@ public class ShooterJoint extends SubsystemBase {
 
     private boolean debug = false;
 
-    TalonFX m_motor = new TalonFX(Constants.ShooterJointConstants.ID_SHOOTER_JOINT);
     private final DutyCycleOut m_percent = new DutyCycleOut(0);
     private final NeutralOut m_neutral = new NeutralOut();
 
-    private final double upperLimitDegrees = 180;
+    private final double upperLimitDegrees = 80;
     private final double lowerLimitDegrees = 0;
     private final double maxVelocity = 1;
     private final double maxAcceleration = 1;
@@ -68,7 +68,7 @@ public class ShooterJoint extends SubsystemBase {
         new TrapezoidProfile.Constraints(maxVelocity, maxAcceleration));
     private double goalAngle;
     private double currentAngle;
-    private SimpleMotorFeedforward ff = new SimpleMotorFeedforward(0, 0);
+    private ArmFeedforward ff = new ArmFeedforward(0, 0, 0, 0);
     private double output = 0;
 
     /**
@@ -103,23 +103,22 @@ public class ShooterJoint extends SubsystemBase {
         switch (Constants.currentMode) {
             //For PID: Added kS, kV, and kA arguments
             case REAL:
-                ffModel = new SimpleMotorFeedforward(0.0, 0.0); // Need to find
+                ffModel = new ArmFeedforward(0.0, 0.0, 0, 0); // Need to find
                 io.configurePID(2.1, 0.0, 0.0, 0.1, 0.125, 0.01);
                 break;
             case REPLAY:
-                ffModel = new SimpleMotorFeedforward(0.0, 0.0); // Need to find
+                ffModel = new ArmFeedforward(0.0, 0.0, 0, 0); // Need to find
                 io.configurePID(2.1, 0.0, 0.0, 0.1, 0.125, 0.01);
                 break;
             case SIM:
-                ffModel = new SimpleMotorFeedforward(0.0, 0.0); // Need to find
+                ffModel = new ArmFeedforward(0.0, 0.0, 0, 0); // Need to find
                 io.configurePID(0.5, 0.0, 0.0, 0.0, 0.0, 0.0);
                 break;
             default:
-                ffModel = new SimpleMotorFeedforward(0.0, 0.0); // Need to find
+                ffModel = new ArmFeedforward(0.0, 0.0, 0, 0); // Need to find
                 break;
     }
 
-    m_motor.getConfigurator().apply(Constants.ExampleSubsystemConstants.motorConfig());
   }
 
     @Override
@@ -131,14 +130,12 @@ public class ShooterJoint extends SubsystemBase {
         goalAngle = MathUtil.clamp(state.getStateOutput(), lowerLimitDegrees, upperLimitDegrees);
 
         if (state == State.STOW && pidController.atGoal()) {
-          m_motor.setControl(m_neutral);
-          //io.setControl(m_neutral); Question for later
+          io.stop();
         } else {
-            output = pidController.calculate(currentAngle, goalAngle) + ff.calculate(0, 0);
-            io.setVoltage(output); // Question: how to access PID from IO layer - How to make it calculate the output instead of using WPIlib
+            output = pidController.calculate(currentAngle, goalAngle) + ff.calculate(inputs.position, inputs.velocity);
+            io.setVoltage(output);
         }
 
-        displayInfo(debug);
     }
 
 
@@ -152,13 +149,4 @@ public class ShooterJoint extends SubsystemBase {
         return startEnd(() -> this.state = state, () -> this.state = State.STOW);
     }
 
-    private void displayInfo(boolean debug) {
-        if (debug) {
-            SmartDashboard.putString("ShooterJointSubsystem State ", state.toString());
-            SmartDashboard.putNumber("Shooter Joint Setpoint ", state.getStateOutput());
-            SmartDashboard.putNumber("Shooter Joint Output ", m_motor.getMotorVoltage().getValueAsDouble());
-            SmartDashboard.putNumber("Shooter Joint Current Draw", m_motor.getSupplyCurrent().getValueAsDouble());
-        }
-
-    }
 }

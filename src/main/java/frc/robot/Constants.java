@@ -22,10 +22,6 @@ public class Constants {
         public static final int ID_SHOOTER_JOINT = 19; //Made Up For Now
         public static final double ShooterJointTolerance = 5.0;
         
-
-        
-
-        
     }
 
     public static final class ExampleSubsystemConstants {
