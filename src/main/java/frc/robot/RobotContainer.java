@@ -13,21 +13,18 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.LaserCanSensor;
 import frc.robot.subsystems.SimpleSubsystem;
 import frc.robot.subsystems.YSplitRollers;
 
 public class RobotContainer {
-  private double MaxSpeed = TunerConstants.kSpeedAt12VoltsMps; // kSpeedAt12VoltsMps desired top speed
-  private double MaxAngularRate = 1.5 * Math.PI; // 3/4 of a rotation per second max angular velocity
-
   /* Setting up bindings for necessary control of the swerve drive platform */
   private final CommandXboxController joystick = new CommandXboxController(0); // My joystick
-  public final CommandSwerveDrivetrain drivetrain = TunerConstants.DriveTrain; // My drivetrain
 
-  public final SimpleSubsystem simpleSubsystem = new SimpleSubsystem();
+  public final Drivetrain drivetrain = TunerConstants.DriveTrain;
   public final YSplitRollers ySplitRollers = new YSplitRollers();
 
   public final LaserCanSensor laserCanSensor1 = new LaserCanSensor(0);
@@ -36,36 +33,17 @@ public class RobotContainer {
   public final Trigger beamBreak1 = new Trigger(() -> laserCanSensor1.isClose());
   public final Trigger beamBreak2 = new Trigger(() -> laserCanSensor2.isClose());
 
-  private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-      .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
-      .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // I want field-centric
-                                                               // driving in open loop
-  private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-  private final SwerveRequest.RobotCentric forwardStraight = new SwerveRequest.RobotCentric().withDriveRequestType(DriveRequestType.OpenLoopVoltage);
-  private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
-
   /* Path follower */
   private Command runAuto = drivetrain.getAutoPath("Tests");
 
-  private final Telemetry logger = new Telemetry(MaxSpeed);
+  private final Telemetry logger = new Telemetry(DriveConstants.MaxSpeed);
 
   private void configureBindings() {
-    drivetrain.setDefaultCommand( // Drivetrain will execute this command periodically
-        drivetrain.applyRequest(() -> drive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with
-                                                                                           // negative Y (forward)
-            .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-            .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
-        ).ignoringDisable(true));
-
-    joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
-    joystick.b().whileTrue(drivetrain
-        .applyRequest(() -> point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))));
+    drivetrain.setDefaultCommand(drivetrain.run(
+        () -> drivetrain.setControllerInput(-joystick.getLeftY(), -joystick.getLeftX(), -joystick.getRightX())));
     
     // reset the field-centric heading on left bumper press
-    joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldRelative()));
-
-    joystick.pov(0).whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0.5).withVelocityY(0)));
-    joystick.pov(180).whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(0)));
+    //joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldRelative()));
 
     drivetrain.registerTelemetry(logger::telemeterize);
 
@@ -73,10 +51,10 @@ public class RobotContainer {
     /* Bindings for drivetrain characterization */
     /* These bindings require multiple buttons pushed to swap between quastatic and dynamic */
     /* Back/Start select dynamic/quasistatic, Y/X select forward/reverse direction */
-    joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-    joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-    joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-    joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+    //joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+    //joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+    //joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+    //joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
 
   }
