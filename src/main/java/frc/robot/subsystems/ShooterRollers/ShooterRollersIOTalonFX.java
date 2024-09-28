@@ -53,16 +53,15 @@ public class ShooterRollersIOTalonFX implements ShooterRollersIO {
     @Override
     public void updateInputs(ShooterRollersIOInputs inputs) {
         BaseStatusSignal.refreshAll(
-            leaderPosition, leaderVelocity, leaderAppliedVolts, leaderCurrent);
-        BaseStatusSignal.refreshAll(
-            followerPosition, followerVelocity, followerAppliedVolts, followerCurrent);
+            leaderPosition, leaderVelocity, leaderAppliedVolts, leaderCurrent, followerPosition, followerVelocity, followerAppliedVolts, followerCurrent);
         inputs.positionRad = Units.rotationsToRadians(leaderPosition.getValueAsDouble()) / GEAR_RATIO;
         inputs.velocityRadPerSec =
             Units.rotationsToRadians(leaderVelocity.getValueAsDouble()) / GEAR_RATIO;
         inputs.appliedVolts = leaderAppliedVolts.getValueAsDouble();
         inputs.currentAmps =
-            new double[] {leaderCurrent.getValueAsDouble()};
-        // Do we need to do the same thing with follower?
+            new double[] {leaderCurrent.getValueAsDouble(), followerPosition.getValueAsDouble()};
+        inputs.positionRad = leaderPosition.getValueAsDouble();
+        inputs.velocityRadPerSec = leaderVelocity.getValueAsDouble();
     }
 
     @Override
@@ -72,10 +71,10 @@ public class ShooterRollersIOTalonFX implements ShooterRollersIO {
     }
 
     @Override
-    public void setVelocity(double velocityRadPerSec, double ffVolts) {
+    public void setVelocity(double velocityRotPerSec, double ffVolts) {
         leader.setControl(
             new VelocityVoltage(
-                Units.radiansToRotations(velocityRadPerSec),
+                Units.radiansToRotations(velocityRotPerSec),
                 0.0,
                 true,
                 ffVolts,

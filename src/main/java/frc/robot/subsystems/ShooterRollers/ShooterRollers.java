@@ -54,10 +54,6 @@ public class ShooterRollers extends SubsystemBase {
     @Setter
     private State state = State.OFF;
 
-      // Initialize motor controllers
-    TalonFX m_left = new TalonFX(ShooterRollersConstants.ID_Flywheel); 
-    TalonFX m_right = new TalonFX(ShooterRollersConstants.ID_FlywheelFollower);
-
     private final double speedMax = 100.0;
     private final double speedMin = 0.0;
     private final double maxVelocity = 1;
@@ -101,20 +97,11 @@ public class ShooterRollers extends SubsystemBase {
     @Override
     public void periodic() {
       
-        displayInfo(true);
-
         if (state == State.OFF) {
-            m_left.setControl(m_neutralOut);
+            io.stop();
         } else {
             goalSpeed = MathUtil.clamp(state.getStateOutput(), speedMin, speedMax);  
-            // create a Motion Magic velocity closed-loop request, voltage output, slot 0 configs
-            m_left.setControl(m_request.withVelocity(goalSpeed));
-            // OR 
-
-
-
-
-
+            // create a Motion Magic velocity closed-loop request, voltage output, slot 0 configs OR just use regular Velocity Voltage:
             io.setVelocity(goalSpeed, 0);
         }
 
@@ -122,14 +109,5 @@ public class ShooterRollers extends SubsystemBase {
 
     public Command setStateCommand(State state) {
         return runOnce(() -> this.state = state);
-    }
-
-    public void displayInfo(boolean debug) {
-        if (debug) {
-            //SmartDashboard.putBoolean("Shooter at speed", atGoal());
-            SmartDashboard.putString("Flywheel state", getState().toString());
-            SmartDashboard.putNumber("Flywheel Setpoint", state.getStateOutput());
-            SmartDashboard.putNumber("Flywheel Current draw", m_left.getSupplyCurrent().getValueAsDouble());
-        }
     }
 }

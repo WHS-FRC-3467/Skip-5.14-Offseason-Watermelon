@@ -8,6 +8,8 @@ public interface ShooterJointIO {
     public static class ShooterJointIOInputs {
         // This is where we will establish variables
         public double test = 0.0;
+        public double position = 0.0;
+        public double velocity = 0.0;
     }
 
     /* Updates the set of loggable inputs */
